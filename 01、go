@@ -3,3 +3,64 @@
     
     还有部分非常棒的参考书：
         https://github.com/unknwon/the-way-to-go_ZH_CN/blob/master/eBook/preface.md  ----  the-way-to-go_ZH_CN golang线上教程
+        
+2、第一个程序
+    package main
+
+    func main() {}
+    
+    --一般运行命令 go run hello.go
+    --汇总运行命令 go install hello.go | go build hello.go
+    
+    --检查可能的代码逻辑错误 go vet
+    --用同一种代码风格格式化go代码 go fmt
+    --除此之外还有 go get | go test | go doc | go help等命令
+    
+3、go run 报错
+    # command-line-arguments
+    .\http.go:11:22: invalid UTF-8 encoding
+    .\http.go:24:42: invalid UTF-8 encoding
+    .\http.go:25:48: invalid UTF-8 encoding
+    
+    这是因为utf8编码格式问题，由于部分代码编码格式为anis，go编译器不能识别
+    
+4、注释
+    --// 行注释
+    --/* */ 块注释
+    
+5、左大括号不能单独下放一行
+    --Go也使用一对大括号 { and } 来形成一个显式代码块
+    --编码风格限制：很多左大括号 { 不能被放到下一行。
+    示例如下： 错误示例
+    func StatRandomNumbers(numRands int) (int, int)
+    { // 编译错误：语法错误
+        var a, b int
+        for i := 0; i < numRands; i++
+        { // 编译错误：语法错误
+            if rand.Intn(MaxRand) < MaxRand/2
+            { // 编译错误：语法错误
+                a = a + 1
+            } else {
+                b++
+            }
+        }
+        return a, b
+    }
+    
+    正确示例：
+    func StatRandomNumbers(numRands int) (int, int) {
+        // 声明了两个变量（类型都为int，初始值都为0）
+        var a, b int
+        // 一个for循环代码块
+        for i := 0; i < numRands; i++ {
+        // 一个if-else条件控制代码块
+            if rand.Intn(MaxRand) < MaxRand/2 {
+                a = a + 1
+            } else {
+                b++ // 等价于：b = b + 1
+            }
+        }
+        return a, b // 此函数返回两个结果
+    }
+    
+6、
