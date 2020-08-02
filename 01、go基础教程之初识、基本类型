@@ -1,0 +1,161 @@
+1、本博客主要通过学习以下链接的书籍 和 联系相关代码提高自己的能力
+    https://github.com/golang101/golang101  ----  《Go语言101》书籍
+    
+    还有部分非常棒的参考书：
+        https://github.com/unknwon/the-way-to-go_ZH_CN/blob/master/eBook/preface.md  ----  the-way-to-go_ZH_CN golang线上教程
+        
+2、go语言程序结构说明  
+    package main  //非注释的第一行必须为该行，当执行入口在这一行时，package名称必须是main
+    
+    import(
+        "fmt"  //导入包名
+    )
+
+    func main() {  //大括号不能独立一行，会编译报错
+        fmt.Println("黎明")
+    }
+    
+    --一般运行命令 go run hello.go
+    --汇总运行命令 go install hello.go | go build hello.go
+    
+    --检查可能的代码逻辑错误 go vet
+    --用同一种代码风格格式化go代码 go fmt
+    --除此之外还有 go get | go test | go doc | go help等命令
+    
+3、go run 报错
+    # command-line-arguments
+    .\http.go:11:22: invalid UTF-8 encoding
+    .\http.go:24:42: invalid UTF-8 encoding
+    .\http.go:25:48: invalid UTF-8 encoding
+    
+    这是因为utf8编码格式问题，由于部分代码编码格式为anis，go编译器不能识别
+    
+4、注释
+    --// 行注释
+    --/* */ 块注释
+    
+5、左大括号不能单独下放一行
+    --Go也使用一对大括号 { and } 来形成一个显式代码块
+    --编码风格限制：很多左大括号 { 不能被放到下一行。
+    示例如下： 错误示例
+    func StatRandomNumbers(numRands int) (int, int)
+    { // 编译错误：语法错误
+        var a, b int
+        for i := 0; i < numRands; i++
+        { // 编译错误：语法错误
+            if rand.Intn(MaxRand) < MaxRand/2
+            { // 编译错误：语法错误
+                a = a + 1
+            } else {
+                b++
+            }
+        }
+        return a, b
+    }
+    
+    正确示例：
+    func StatRandomNumbers(numRands int) (int, int) {
+        // 声明了两个变量（类型都为int，初始值都为0）
+        var a, b int
+        // 一个for循环代码块
+        for i := 0; i < numRands; i++ {
+        // 一个if-else条件控制代码块
+            if rand.Intn(MaxRand) < MaxRand/2 {
+                a = a + 1
+            } else {
+                b++ // 等价于：b = b + 1
+            }
+        }
+        return a, b // 此函数返回两个结果
+    }
+    
+6、关键字和标识符
+    --关键字：系统识别的，封装多条指令执行特定功能的，有明确含义的单词
+        --go目前有25个关键字
+        --const、func、import、package、type和var用来声明各种代码元素。
+        --chan、interface、map和struct用做 一些组合类型的字面表示中。
+        --defer和go也可以看作是流程控制关键字， 但它们有一些特殊的作用。
+        --break、case、continue、default、else、fallthrough、for、goto、if、range、return和switch用在流程控制语句中。
+        
+    --标识符：由字母或者下划线开头，整个标识符由数字和字母组成的
+        --大写字母开头的是导出标识符，意味着public  |  这里大写字母不只是英文字母
+        --非大写字母开头及 [东方字母] 都被识别为非导出标识符
+        
+        实例：
+           --合法的导出标识符
+               Player_9  |  DoSomething  |  VERSION  |  Ĝo  |  Π
+           --合法的未导出标识符
+               _  |  _status  |  memStat  |  book  |  π  |  一个类型  |  변수  |  エラー 
+           
+           --不能被用作标识符的
+               --Unicode数字开头
+                   123  |  3apples
+               --含有不符合要求的Unicode字符
+                   a.b  |  *ptr  |  $name  |  a@b.c
+               --这两个是关键字
+                   type  |  range
+
+7、基本类型和字面量表示  --  这个只是讲的类型不涉及变量常量，请不要自我代入产生焦虑
+    --go语言有17中内置类型，其中15种为数值型，2种为string 和 bool
+    --15种数值型：2种浮点 float32 和 float64
+                 2种复数 complex64 和 complex128
+                 11种整形 int uint uintptr 和 int[8, 16, 32, 64] uint[8, 16, 32, 64]
+    --说明：
+        --int[8, 16, 32, 64]和uint[8， 16， 32， 64]中数字表示二进制位也就是bit为，8bit = i字节[byte]
+        --byte == int8  |  rune == int32
+        --u代表无符号，即数值非负
+        --复数类型都是浮点型，complex64对应float32，complex128对应float64
+        --int uint所占二进制为和电脑架构到底是64还是32有关，uintptr的值必须满足存储的下内存地址
+        --bool只有两个只 false 和 true
+        
+    --数值型字面量可以使用下划线进行分割，注意下划线必须在两个数字之间出现，不可在首尾，不可在数字和小数点，不可在进制标识位之间出现，但是可以出现在进制标识位和数字之间
+        --合法标识符如下：
+            --89_98_09_0 == 8998090
+            --0X_1F_FFP-16 == 0X1FFFP-16
+            --0x_Bad_Face == 0xBadFace
+            --0_33_77_22 == 0337722
+            
+        --不合法标识位：
+            --_69 // 下划线不能出现在首尾
+            --6__9 // 下划线不能相连
+            --69_ // 下划线不能出现在首尾
+            --0_xBadFace // x不是一个合法的八进制数字
+            --1_.5 // .不是一个合法的十进制数字
+            --1._5 // .不是一个合法的十进制数字
+           
+8、精度丢失是允许的，但是溢出是不允许的
+    --int uint uintptr三个大小和具体的电脑位数有关系
+    --int8 float32的范围和自己后面的数字大小有关系
+    --int8 == byte
+    --int32 == rune
+    --float32表示的浮点数范围小、精度丢失严重一般不使用
+    --rune类型使用单引号包裹的，string是使用双引号包裹的，需要进行区分
+    
+
+           
+           
+           
+           
+           
+           
+           
+           
+           
+           
+           
+           
+           
+           
+           
+           
+           
+           
+           
+           
+           
+           
+           
+           
+           
+           
+           
